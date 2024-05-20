@@ -71,8 +71,6 @@ NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff, double R, d
 
 double NCP::PhysicsModel::calcCrossSection( double Q ) const
 {
-  // if ( neutron_ekin > m_cutoffekin )
-  //   return m_sigma;
   const double Qr = Q * m_radius;
   double sinQr, cosQr;
   NC::sincos(Qr, cosQr, sinQr); 
