@@ -31,27 +31,29 @@ NCP::PhysicsModel NCP::PhysicsModel::createFromInfo( const NC::Info& info )
   //
 
   //Verify we have exactly one line and two words:
-  if ( data.size() != 1 || data.at(0).size()!=2 )
+  if ( data.size() != 1 || data.at(0).size()!=4 )
     NCRYSTAL_THROW2(BadInput,"Data in the @CUSTOM_"<<pluginNameUpperCase()
                     <<" section should be two numbers on a single line");
 
   //Parse and validate values:
-  double sigma, lambda_cutoff,R;
+  double sigma, lambda_cutoff,R,length;
   if ( ! NC::safe_str2dbl( data.at(0).at(0), sigma )
        || ! NC::safe_str2dbl( data.at(0).at(1), lambda_cutoff )
        || ! NC::safe_str2dbl( data.at(0).at(2), R)
-       || ! (sigma>0.0) || !(lambda_cutoff>=0.0) || !(R>=0.0))
+       || ! NC::safe_str2dbl( data.at(0).at(3), length)
+       || ! (sigma>0.0) || !(lambda_cutoff>=0.0) || !(R>=0.0) || (length>=0.0))
     NCRYSTAL_THROW2( BadInput,"Invalid values specified in the @CUSTOM_"<<pluginNameUpperCase()
                      <<" section (should be two positive floating point values)" );
 
   //Parsing done! Create and return our model:
-  return PhysicsModel(sigma,lambda_cutoff,R);
+  return PhysicsModel(sigma,lambda_cutoff,R,length);
 }
 
-NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff, double R)
+NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff, double R, double length)
   : m_sigma(sigma),
     m_cutoffekin(NC::wl2ekin(lambda_cutoff)),
-    m_radius(R)
+    m_radius(R),
+    m_length(length)
 {
   //Important note to developers who are using the infrastructure in the
   //testcode/ subdirectory: If you change the number or types of the arguments
@@ -62,6 +64,8 @@ NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff, double R)
 
   nc_assert( m_sigma > 0.0 );
   nc_assert( m_cutoffekin > 0.0);
+  nc_assert( m_radius > 0.0);
+  nc_assert( m_length > 0.0);
 }
 
 

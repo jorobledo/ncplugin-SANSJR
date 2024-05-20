@@ -7,7 +7,7 @@ int main()
   //Very simple test which instantiates our model and calculates a few cross
   //sections and samples a few scattering events:
 
-  auto pm = NCP::PhysicsModel( 2.0/*sigma below lambda_cutoff*/, 5.0/*lambda cutoff*/, 50.0/*radius*/);
+  auto pm = NCP::PhysicsModel( 2.0/*sigma below lambda_cutoff*/, 5.0/*lambda cutoff*/, 20.0/*radius*/, 400.0);
 
   std::cout << pm.calcCrossSection(1e-3) << std::endl;
 

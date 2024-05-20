@@ -7,16 +7,16 @@
 
 extern "C" {
 
-  void nctest_getmanyxsvalues( double sigma, double lambda_cutoff, double R, unsigned array_size, const double* ekin_array, double* output_xs_array )
+  void nctest_getmanyxsvalues( double sigma, double lambda_cutoff, double R, double length, unsigned array_size, const double* ekin_array, double* output_xs_array )
   {
-    NCP::PhysicsModel pm(sigma,lambda_cutoff, R);
+    NCP::PhysicsModel pm(sigma,lambda_cutoff, R, length);
     for (unsigned i = 0; i < array_size; ++i)
       output_xs_array[i] = pm.calcCrossSection(ekin_array[i]);
   }
 
-  void nctest_samplemanyscatmu( double sigma, double lambda_cutoff, double R, double ekin, unsigned nvalues, double* output_mu )
+  void nctest_samplemanyscatmu( double sigma, double lambda_cutoff, double R, double length, double ekin, unsigned nvalues, double* output_mu )
   {
-    NCP::PhysicsModel pm(sigma,lambda_cutoff, R);
+    NCP::PhysicsModel pm(sigma,lambda_cutoff, R, length);
     auto rng = NC::getRNG();
     for (unsigned i = 0; i < nvalues; ++i)
       output_mu[i] = pm.sampleScatteringEvent(rng,ekin).mu;
