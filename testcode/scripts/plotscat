@@ -15,7 +15,6 @@ nbins = 200
 wl = 4
 k = 2*np.pi/wl
 muvals = physmodel.sampleScatMu( NC.wl2ekin(wl), nvalues=nsample )
-
 print(f"Average mu in {float(len(muvals)):g} scattering events (expected for isotropic is ~=0): {muvals.sum()/len(muvals)}")
 
 plt.hist( muvals, bins=nbins, edgecolor='blue',facecolor='blue',alpha=0.4 )

@@ -4,6 +4,16 @@
 #include "NCrystal/internal/NCString.hh"
 #include "NCrystal/internal/NCRandUtils.hh"
 
+// Include external C dependencies for sasview models
+extern "C"
+  {
+    #include "../models/kernel_header.c"
+    #include "../models/lib/polevl.c"
+    #include "../models/lib/sas_J1.c"
+    #include "../models/lib/gauss20.c"
+    #include "../models/cylinder.c"
+  }
+
 bool NCP::PhysicsModel::isApplicable( const NC::Info& info )
 {
   //Accept if input is NCMAT data with @CUSTOM_<pluginname> section:
@@ -71,11 +81,22 @@ NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff, double R, d
 
 double NCP::PhysicsModel::calcCrossSection( double Q ) const
 {
-  const double Qr = Q * m_radius;
-  double sinQr, cosQr;
-  NC::sincos(Qr, cosQr, sinQr); 
-  double V{4.0/3.0* 3.1415 * std::pow(m_radius,3)};
-  return V * NC::ncsquare((sinQr - Qr * cosQr)/std::pow(Qr,3));
+  // Define scattering amplitude (F1) and it's form factor (F2); 
+  double F1, F2;
+
+  // To be user defined:
+  double sld{4.0};
+  double solvent_sld{1.0};
+  double radius{20.0};
+  double length{400.0};
+
+  // Randomly oriented cylinder form factor calculator
+  Fq(Q, &F1, &F2, sld, solvent_sld, radius, length);
+  // Normalize form factor per particle volume
+  F2 /= form_volume(radius, length);
+
+  // 1/v * F(Q)
+  return F2;
 }
 
 NCP::PhysicsModel::ScatEvent NCP::PhysicsModel::sampleScatteringEvent( NC::RNG& rng, double neutron_ekin ) const
@@ -104,18 +125,21 @@ NCP::PhysicsModel::ScatEvent NCP::PhysicsModel::sampleScatteringEvent( NC::RNG& 
 
   double qmax{1.0}; // qmax for sampling, should be user defined maybe
   double qmin{1e-3}; // qmin for sampling, should be user defined also.
-  double step{1e-2};
+  double step{1e-2}; // steps to calculate Imax
 
-  double Imax = std::numeric_limits<double>::lowest();
-  double maxX = qmin;
+  // Get de Maximum value of the XS to sample from it
+  double Imax{std::numeric_limits<double>::lowest()};
+  double maxX{qmin};
   for (double x = qmin; x<=qmax; x+=step){
-    double val = NCP::PhysicsModel::calcCrossSection(x);
+    double val{NCP::PhysicsModel::calcCrossSection(x)};
     if (val > Imax){
       Imax = val;
       maxX = x;
     }
   }
 
+  // Sample randomly following the XS distribution:
+  // valid only for elastic scattering
   double q{}, xs{}, acceptance{};
   do {
     q = rng.generate()*qmax;
