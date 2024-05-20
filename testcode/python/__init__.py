@@ -11,9 +11,9 @@ class PhysicsModel:
 
     """Python version of the PhysicsModel class defined in the plugin."""
 
-    def __init__(self,sigma,lambda_cutoff):
+    def __init__(self,sigma,lambda_cutoff, R):
         """Initialise model. Refer to NCPhysicsModel.hh for the meaning of the parameters."""
-        self.__modelparams=(sigma,lambda_cutoff)
+        self.__modelparams=(sigma,lambda_cutoff, R)
 
     def calcCrossSection(self,ekin):
         """Calculates cross sections. The ekin parameter can be a float or a numpy

@@ -31,10 +31,10 @@ namespace NCPluginNamespace {
 
     //Constructor gets constant cross section value, and the neutron wavelength
     //cutoff:
-    PhysicsModel( double sigma, double lambda_cutoff );
+    PhysicsModel( double sigma, double lambda_cutoff, double R );
 
     //Provide cross sections for a given neutron:
-    double calcCrossSection( double neutron_ekin ) const;
+    double calcCrossSection( double Q ) const;
 
     //Sample scattering event (rng is random number stream). Results are given
     //as the final ekin of the neutron and scat_mu which is cos(scattering_angle).
@@ -45,6 +45,7 @@ namespace NCPluginNamespace {
     //Data members:
     double m_sigma;
     double m_cutoffekin;
+    double m_radius;
   };
 
 }

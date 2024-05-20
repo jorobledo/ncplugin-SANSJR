@@ -36,20 +36,22 @@ NCP::PhysicsModel NCP::PhysicsModel::createFromInfo( const NC::Info& info )
                     <<" section should be two numbers on a single line");
 
   //Parse and validate values:
-  double sigma, lambda_cutoff;
+  double sigma, lambda_cutoff,R;
   if ( ! NC::safe_str2dbl( data.at(0).at(0), sigma )
        || ! NC::safe_str2dbl( data.at(0).at(1), lambda_cutoff )
-       || ! (sigma>0.0) || !(lambda_cutoff>=0.0) )
+       || ! NC::safe_str2dbl( data.at(0).at(2), R)
+       || ! (sigma>0.0) || !(lambda_cutoff>=0.0) || !(R>=0.0))
     NCRYSTAL_THROW2( BadInput,"Invalid values specified in the @CUSTOM_"<<pluginNameUpperCase()
                      <<" section (should be two positive floating point values)" );
 
   //Parsing done! Create and return our model:
-  return PhysicsModel(sigma,lambda_cutoff);
+  return PhysicsModel(sigma,lambda_cutoff,R);
 }
 
-NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff )
+NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff, double R)
   : m_sigma(sigma),
-    m_cutoffekin(NC::wl2ekin(lambda_cutoff))
+    m_cutoffekin(NC::wl2ekin(lambda_cutoff)),
+    m_radius(R)
 {
   //Important note to developers who are using the infrastructure in the
   //testcode/ subdirectory: If you change the number or types of the arguments
@@ -62,11 +64,16 @@ NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff )
   nc_assert( m_cutoffekin > 0.0);
 }
 
-double NCP::PhysicsModel::calcCrossSection( double neutron_ekin ) const
+
+double NCP::PhysicsModel::calcCrossSection( double Q ) const
 {
-  if ( neutron_ekin > m_cutoffekin )
-    return m_sigma;
-  return 0.0;
+  // if ( neutron_ekin > m_cutoffekin )
+  //   return m_sigma;
+  const double Qr = Q * m_radius;
+  double sinQr, cosQr;
+  NC::sincos(Qr, cosQr, sinQr); 
+  double V{4.0/3.0* 3.1415 * std::pow(m_radius,3)};
+  return V * NC::ncsquare((sinQr - Qr * cosQr)/std::pow(Qr,3));
 }
 
 NCP::PhysicsModel::ScatEvent NCP::PhysicsModel::sampleScatteringEvent( NC::RNG& rng, double neutron_ekin ) const
@@ -89,9 +96,31 @@ NCP::PhysicsModel::ScatEvent NCP::PhysicsModel::sampleScatteringEvent( NC::RNG& 
   //additional helper classes or functions should be created and used, in order
   //to keep the code here manageable:
 
-  result.ekin_final = neutron_ekin;//Elastic
-  result.mu = randIsotropicScatterMu(rng).dbl();
+  result.ekin_final = neutron_ekin;//Elastic scattering
 
+  double k{std::sqrt(NC::ekin2ksq(neutron_ekin))}; //modulus of wavevector
+
+  double qmax{1.0}; // qmax for sampling, should be user defined maybe
+  double qmin{1e-3}; // qmin for sampling, should be user defined also.
+  double step{1e-2};
+
+  double Imax = std::numeric_limits<double>::lowest();
+  double maxX = qmin;
+  for (double x = qmin; x<=qmax; x+=step){
+    double val = NCP::PhysicsModel::calcCrossSection(x);
+    if (val > Imax){
+      Imax = val;
+      maxX = x;
+    }
+  }
+
+  double q{}, xs{}, acceptance{};
+  do {
+    q = rng.generate()*qmax;
+    acceptance = rng.generate()*Imax;
+    xs = NCP::PhysicsModel::calcCrossSection(q);
+  } while (acceptance>xs);
+  result.mu = 1 - 0.5*NC::ncsquare(q/k);
   return result;
 }
 
