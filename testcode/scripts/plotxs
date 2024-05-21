@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 
 physmodel = ncplugin.PhysicsModel( sigma=2.0, lambda_cutoff=5.0, R=20.0, length=400.0)
 
-print('cross section @   3.0 Aa : %g barn'%physmodel.calcCrossSection(NC.wl2ekin(3.0)) )
-print('cross section @   7.0 Aa : %g barn'%physmodel.calcCrossSection(NC.wl2ekin(7.0)) )
-print('cross section @   0.5 eV : %g barn'%physmodel.calcCrossSection( 0.5 ) )
-print('cross section @ 0.001 eV : %g barn'%physmodel.calcCrossSection( 0.001 ) )
+print('cross section @   3.0 Aa : %g barn'%physmodel.calcDiffCrossSection(NC.wl2ekin(3.0)) )
+print('cross section @   7.0 Aa : %g barn'%physmodel.calcDiffCrossSection(NC.wl2ekin(7.0)) )
+print('cross section @   0.5 eV : %g barn'%physmodel.calcDiffCrossSection( 0.5 ) )
+print('cross section @ 0.001 eV : %g barn'%physmodel.calcDiffCrossSection( 0.001 ) )
 
 # wls = np.linspace(5,20,100)
 q = np.linspace(1e-3,1,1000)
-plt.loglog( q, physmodel.calcCrossSection(q) )
+plt.loglog( q, physmodel.calcDiffCrossSection(q) )
 r=50
 def sphere_IQ(q, r,scale,deltarho, background):
     qr = q*r

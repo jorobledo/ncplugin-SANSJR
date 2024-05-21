@@ -11,7 +11,7 @@ extern "C" {
   {
     NCP::PhysicsModel pm(sigma,lambda_cutoff, R, length);
     for (unsigned i = 0; i < array_size; ++i)
-      output_xs_array[i] = pm.calcCrossSection(ekin_array[i]);
+      output_xs_array[i] = pm.calcDiffCrossSection(ekin_array[i]);
   }
 
   void nctest_samplemanyscatmu( double sigma, double lambda_cutoff, double R, double length, double ekin, unsigned nvalues, double* output_mu )

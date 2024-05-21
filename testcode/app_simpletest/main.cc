@@ -9,11 +9,11 @@ int main()
 
   auto pm = NCP::PhysicsModel( 2.0/*sigma below lambda_cutoff*/, 5.0/*lambda cutoff*/, 20.0/*radius*/, 400.0);
 
-  std::cout << pm.calcCrossSection(1e-3) << std::endl;
+  std::cout << pm.calcDiffCrossSection(1e-3) << std::endl;
 
   for ( auto wl : NC::linspace(0.01, 8.0, 20) ) {
     std::cout << "cross section @ " << wl << " Aa is "
-              << pm.calcCrossSection( NC::wl2ekin(wl) ) <<" barn" << std::endl;
+              << pm.calcDiffCrossSection( NC::wl2ekin(wl) ) <<" barn" << std::endl;
   }
 
   auto rng = NC::getRNG();

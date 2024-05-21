@@ -34,7 +34,7 @@ namespace NCPluginNamespace {
     PhysicsModel( double sigma, double lambda_cutoff, double R, double length );
 
     //Provide cross sections for a given neutron:
-    double calcCrossSection( double Q ) const;
+    double calcDiffCrossSection( double Q ) const;
 
     //Sample scattering event (rng is random number stream). Results are given
     //as the final ekin of the neutron and scat_mu which is cos(scattering_angle).

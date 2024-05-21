@@ -79,7 +79,7 @@ NCP::PhysicsModel::PhysicsModel( double sigma, double lambda_cutoff, double R, d
 }
 
 
-double NCP::PhysicsModel::calcCrossSection( double Q ) const
+double NCP::PhysicsModel::calcDiffCrossSection( double Q ) const
 {
   // Define scattering amplitude (F1) and it's form factor (F2); 
   double F1, F2;
@@ -131,7 +131,7 @@ NCP::PhysicsModel::ScatEvent NCP::PhysicsModel::sampleScatteringEvent( NC::RNG& 
   double Imax{std::numeric_limits<double>::lowest()};
   double maxX{qmin};
   for (double x = qmin; x<=qmax; x+=step){
-    double val{NCP::PhysicsModel::calcCrossSection(x)};
+    double val{NCP::PhysicsModel::calcDiffCrossSection(x)};
     if (val > Imax){
       Imax = val;
       maxX = x;
@@ -144,7 +144,7 @@ NCP::PhysicsModel::ScatEvent NCP::PhysicsModel::sampleScatteringEvent( NC::RNG& 
   do {
     q = rng.generate()*qmax;
     acceptance = rng.generate()*Imax;
-    xs = NCP::PhysicsModel::calcCrossSection(q);
+    xs = NCP::PhysicsModel::calcDiffCrossSection(q);
   } while (acceptance>xs);
   result.mu = 1 - 0.5*NC::ncsquare(q/k);
   return result;

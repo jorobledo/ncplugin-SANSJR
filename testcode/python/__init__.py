@@ -15,8 +15,8 @@ class PhysicsModel:
         """Initialise model. Refer to NCPhysicsModel.hh for the meaning of the parameters."""
         self.__modelparams=(sigma,lambda_cutoff, R, length)
 
-    def calcCrossSection(self,Q):
-        """Calculates cross sections. The ekin parameter can be a float or a numpy
+    def calcDiffCrossSection(self,Q):
+        """Calculates differential cross sections. The ekin parameter can be a float or a numpy
         array, and the return value will be similar."""
         scalar = not hasattr(Q,'__len__')
         Q = np.atleast_1d(Q)

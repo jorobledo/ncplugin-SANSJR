@@ -70,7 +70,7 @@ plt.plot( wls, sc_plugin_incelas_only.xsect(wl=wls), label='With new plugin [onl
 # infrastructure:
 #
 pm = ncplugin.PhysicsModel( sigma=newmodel_sigma, lambda_cutoff=newmodel_lambda_cutoff )
-plt.plot(wls, pm.calcCrossSection(NC.wl2ekin(wls)),
+plt.plot(wls, pm.calcDiffCrossSection(NC.wl2ekin(wls)),
          ls=':',lw=3,label='Directly from new PhysicsModel')
 
 ######################################################################
